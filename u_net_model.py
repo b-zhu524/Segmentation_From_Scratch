@@ -15,15 +15,21 @@ class DoubleConv(nn.Module):
             nn.ReLU(inplace=True),
         )
 
+        for m in self.conv:
+            if isinstance(m, nn.Conv2d):
+                # torch.nn.init.xavier_normal_(m.weight)
+                torch.nn.init.zeros_(m.weight)
+
     def forward(self, x):
-        return self.conv(x)
+        x = self.conv(x)
+        return x
 
 
 class UNet(nn.Module):
-    def __init__(self, in_channels=3, out_channels=1, features=[64, 128, 256, 512]):
+    def __init__(self, in_channels=3, out_channels=1, features=(64, 128, 256, 512)):
         super(UNet, self).__init__()
-        self.ups = nn.ModuleList()
         self.downs = nn.ModuleList()
+        self.ups = nn.ModuleList()
         self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
 
         # Down Part of UNET
@@ -64,16 +70,17 @@ class UNet(nn.Module):
             concat_skip = torch.cat((skip_connection, x), dim=1)
             x = self.ups[idx + 1](concat_skip)
 
-        return self.final_conv(x)
-
-def test():
-    x = torch.randn((3, 1, 160, 160))
-    model = UNet(in_channels=1, out_channels=1)
-    preds = model(x)
-    print(preds.shape)
-    print(x.shape)
-    assert preds.shape == x.shape
+        x = self.final_conv(x)
+        return x
 
 
 if __name__ == '__main__':
+    def test():
+        x = torch.randn((1, 1, 161, 161))
+        model = UNet(in_channels=1, out_channels=1)
+        preds = model(x)
+        print(preds.shape)
+        print(x.shape)
+        assert preds.shape == x.shape
+
     test()
