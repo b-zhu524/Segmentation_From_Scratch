@@ -4,9 +4,6 @@ from dataset import CarvanaDataset
 from torch.utils.data import DataLoader
 
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-
 def save_checkpoint(state, filename="my_checkpoint.pth.tar"):
     print("=> Saving Checkpoint")
     torch.save(state, filename)
@@ -59,7 +56,7 @@ def get_loaders(
     return train_loader, val_loader
 
 
-def check_accuracy(loader, model, device=device):
+def check_accuracy(loader, model, device="cuda"):
     num_correct = 0
     num_pixels = 0
     dice_score = 0
@@ -87,7 +84,7 @@ def check_accuracy(loader, model, device=device):
 
 
 def save_predictions_as_imgs(
-        loader, model, folder="saved_images/", device=device
+        loader, model, folder="saved_images/", device="cuda"
 ):
     model.eval()
 
