@@ -9,7 +9,7 @@ class CarvanaDataset(Dataset):
         self.image_dir = image_dir
         self.mask_dir = mask_dir
         self.transform = transform
-        self.images = os.listdir(image_dir)[:48]
+        self.images = os.listdir(image_dir)
 
     def __len__(self):
         return len(self.images)

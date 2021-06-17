@@ -20,7 +20,7 @@ learning_rate = 1e-4
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 batch_size = 16 # try 32
-num_epochs = 3
+num_epochs = 5
 num_workers = 2
 
 image_height = 160	# originally 1280
@@ -28,10 +28,10 @@ image_width = 240	# originally 1918
 pin_memory = True
 load_model = False
 
-train_img_dir = "Carvana_Dataset/train/"
+train_img_dir = "Carvana_Dataset/train_images/"
 train_mask_dir = "Carvana_Dataset/train_masks/"
-val_img_dir = "Carvana_Dataset/test/"
-val_mask_dir = "Carvana_Dataset/test_masks/"
+val_img_dir = "Carvana_Dataset/val_images/"
+val_mask_dir = "Carvana_Dataset/val_masks/"
 
 
 def train_fn(loader, model, optimizer, loss_fn, scaler):
@@ -40,6 +40,7 @@ def train_fn(loader, model, optimizer, loss_fn, scaler):
 	for batch_idx, (data, targets) in enumerate(loop):
 		data = data.to(device)
 		targets = targets.float().unsqueeze(1).to(device)
+		optimizer.zero_grad()
 
 		# forward
 		# with autograd.detect_anomaly():
@@ -48,7 +49,6 @@ def train_fn(loader, model, optimizer, loss_fn, scaler):
 			loss = loss_fn(predictions, targets)
 
 		# backward
-		optimizer.zero_grad()
 		scaler.scale(loss).backward()
 		scaler.step(optimizer)
 		scaler.update()
@@ -65,9 +65,9 @@ def main():
 			A.HorizontalFlip(p=0.5),
 			A.VerticalFlip(p=0.1),
 			A.Normalize(
-				mean=[0.0, 0.0, 0.0],
-				std=[1.0, 1.0, 1.0],
-				max_pixel_value=255.0
+				# mean=[0.0, 0.0, 0.0],
+				# std=[1.0, 1.0, 1.0],
+				# max_pixel_value=255.0
 			),
 			ToTensorV2(),
 		],
@@ -77,9 +77,9 @@ def main():
 		[
 			A.Resize(height=image_height, width=image_width),
 			A.Normalize(
-				mean=[0.0, 0.0, 0.0],
-				std=[1.0, 1.0, 1.0],
-				max_pixel_value=255.0
+				# mean=[0.0, 0.0, 0.0],
+				# std=[1.0, 1.0, 1.0],
+				# max_pixel_value=255.0
 			),
 			ToTensorV2(),
 		],
@@ -118,11 +118,12 @@ def main():
 		save_checkpoint(checkpoint)
 
 		# check accuracy
+		check_accuracy(val_loader, model, device=device)
 		check_accuracy(train_loader, model, device=device)
 
 		# print some examples to a folder
 		save_predictions_as_imgs(
-			train_loader, model, folder="saved_images/", device=device
+			val_loader, model, folder="saved_images/", device=device
 		)
 
 

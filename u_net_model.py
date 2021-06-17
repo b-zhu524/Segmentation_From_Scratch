@@ -15,10 +15,10 @@ class DoubleConv(nn.Module):
             nn.ReLU(inplace=True),
         )
 
-        for m in self.conv:
-            if isinstance(m, nn.Conv2d):
-                # torch.nn.init.xavier_normal_(m.weight)
-                torch.nn.init.zeros_(m.weight)
+        # for m in self.conv:
+        #     if isinstance(m, nn.Conv2d):
+        #         # torch.nn.init.xavier_normal_(m.weight)
+        #         torch.nn.init.zeros_(m.weight)
 
     def forward(self, x):
         x = self.conv(x)

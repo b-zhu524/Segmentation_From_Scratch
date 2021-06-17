@@ -3,4 +3,4 @@ saved_images/
 my_checkpoint.pth.tar
 __pycache__/
 Carvana_Dataset/
-
+*.swp
